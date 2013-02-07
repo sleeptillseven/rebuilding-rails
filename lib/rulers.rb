@@ -11,16 +11,29 @@ module Rulers
     SERVER_ERROR = [500, CONTENT_TYPE, []]
 
     def call(env)
-      return NOT_FOUND if env['PATH_INFO'][/favicon\.ico/]
+      return NOT_FOUND if get_favicon?(env)
+      handle_request(env)
+    end
 
+
+    private
+
+    def get_favicon?(env)
+      env['PATH_INFO'][/favicon\.ico/]
+    end
+
+    def handle_request(env)
       begin
-        klass, action = get_controller_and_action(env)
-        controller    = klass.new(env)
-        text          = controller.send(action)
-        [OK, CONTENT_TYPE, [text]]
+        [OK, CONTENT_TYPE, [call_action(env)]]
       rescue
         SERVER_ERROR
       end
+    end
+
+    def call_action(env)
+      klass, action = get_controller_and_action(env)
+      controller    = klass.new(env)
+      controller.send(action)
     end
   end
 
