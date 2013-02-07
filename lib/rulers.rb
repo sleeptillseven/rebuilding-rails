@@ -14,7 +14,7 @@ module Rulers
       end
 
       klass, action = get_controller_and_action(env)
-      controller    = klass.new
+      controller    = klass.new(env)
       text          = controller.send(action)
       [200, { CONTENT => HTML }, [text]]
     end
