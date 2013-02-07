@@ -5,18 +5,22 @@ require "rulers/routing"
 module Rulers
 
   class Application
-    HTML    = 'text/html'
-    CONTENT = 'Content-Type'
+    CONTENT_TYPE = { 'Content-Type' => 'text/html' }
+    OK           = 200
+    NOT_FOUND    = [404, CONTENT_TYPE, []]
+    SERVER_ERROR = [500, CONTENT_TYPE, []]
 
     def call(env)
-      if env['PATH_INFO'][/favicon\.ico/]
-        return [404, { CONTENT => HTML }, []]
-      end
+      return NOT_FOUND if env['PATH_INFO'][/favicon\.ico/]
 
-      klass, action = get_controller_and_action(env)
-      controller    = klass.new(env)
-      text          = controller.send(action)
-      [200, { CONTENT => HTML }, [text]]
+      begin
+        klass, action = get_controller_and_action(env)
+        controller    = klass.new(env)
+        text          = controller.send(action)
+        [OK, CONTENT_TYPE, [text]]
+      rescue
+        SERVER_ERROR
+      end
     end
   end
 
