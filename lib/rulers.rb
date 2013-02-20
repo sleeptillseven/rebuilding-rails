@@ -4,6 +4,7 @@ require 'rulers/array'
 require 'rulers/routing'
 require 'rulers/controller'
 require 'rulers/http_code'
+require 'rulers/util'
 
 module Rulers
 
