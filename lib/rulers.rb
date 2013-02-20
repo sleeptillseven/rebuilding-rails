@@ -1,14 +1,18 @@
-require "rulers/version"
-require "rulers/array"
-require "rulers/routing"
+require File.expand_path(File.dirname(__FILE__) + '/controller.rb')
+require 'rulers/version'
+require 'rulers/array'
+require 'rulers/routing'
+require 'rulers/controller'
+require 'rulers/http_code'
 
 module Rulers
 
   class Application
+    include HTTPCode
+
     CONTENT_TYPE = { 'Content-Type' => 'text/html' }
-    OK           = 200
-    NOT_FOUND    = [404, CONTENT_TYPE, []]
-    SERVER_ERROR = [500, CONTENT_TYPE, []]
+    NOT_FOUND    = [NOT_FOUND, CONTENT_TYPE, []]
+    SERVER_ERROR = [FATAL, CONTENT_TYPE, []]
 
     def call(env)
       return NOT_FOUND if get_favicon?(env)
@@ -34,22 +38,6 @@ module Rulers
       klass, action = get_controller_and_action(env)
       controller    = klass.new(env)
       controller.send(action)
-    end
-  end
-
-  class Controller
-    attr_reader :env
-
-    def initialize(env)
-      @env = env
-    end
-
-    def get?
-      !!env['REQUEST_METHOD'][/get/i]
-    end
-
-    def post?
-      !!env['REQUEST_METHOD'][/post/i]
     end
   end
 end
